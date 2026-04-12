@@ -27,6 +27,9 @@ public class SelectablePanel extends PaintPanel{
     private double currentYMin;
     private double currentYMax;
 
+    private double currentWidth;
+    private double currentHeight;
+
     public void addSelectListener(SelectListener listener){
         selectHandlers.add(listener);
     }
@@ -47,6 +50,8 @@ public class SelectablePanel extends PaintPanel{
         this.currentXMax = origXMax;
         this.currentYMin = origYMin;
         this.currentYMax = origYMax;
+        this.currentWidth = currentXMax - currentXMin;
+        this.currentHeight = currentYMax - currentYMin;
 
         g = getGraphics();
 
@@ -115,30 +120,27 @@ public class SelectablePanel extends PaintPanel{
         int height = getHeight();
         if (width <= 0 || height <= 0) return;
 
-        double currentW = currentXMax - currentXMin;
-        double currentH = currentYMax - currentYMin;
-        double currentRatio = currentW / currentH;
-
         double panelRatio = (double) width / height;
+        double currentRatio = currentWidth / currentHeight;
 
         double newXMin, newXMax, newYMin, newYMax;
 
         if (panelRatio > currentRatio) {
-            double newH = currentH;
-            double newW = newH * panelRatio;
-            double offsetX = (newW - currentW) / 2.0;
-            newXMin = currentXMin - offsetX;
-            newXMax = currentXMax + offsetX;
+            double newW = currentHeight * panelRatio;
+            double offsetX = (newW - currentWidth) / 2.0;
+            double centerX = (currentXMin + currentXMax) / 2.0;
+            newXMin = centerX - newW / 2.0;
+            newXMax = centerX + newW / 2.0;
             newYMin = currentYMin;
             newYMax = currentYMax;
         } else {
-            double newW = currentW;
-            double newH = newW / panelRatio;
-            double offsetY = (newH - currentH) / 2.0;
+            double newH = currentWidth / panelRatio;
+            double offsetY = (newH - currentHeight) / 2.0;
+            double centerY = (currentYMin + currentYMax) / 2.0;
+            newYMin = centerY - newH / 2.0;
+            newYMax = centerY + newH / 2.0;
             newXMin = currentXMin;
             newXMax = currentXMax;
-            newYMin = currentYMin - offsetY;
-            newYMax = currentYMax + offsetY;
         }
 
         converter.setXShape(newXMin, newXMax);
@@ -159,6 +161,8 @@ public class SelectablePanel extends PaintPanel{
         currentXMax = xMax;
         currentYMin = yMin;
         currentYMax = yMax;
+        currentWidth = xMax - xMin;
+        currentHeight = yMax - yMin;
         adjustBoundsForAspectRatio();
         repaint();
     }
